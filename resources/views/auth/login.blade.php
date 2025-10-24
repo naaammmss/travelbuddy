@@ -52,8 +52,8 @@
                 <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <span class="text-2xl text-white">🏝️</span>
                 </div>
-                <h1 class="text-3xl font-bold text-gray-800 mb-2">Welcome Back!</h1>
-                <p class="text-gray-500">Sign in to continue your Bohol adventure</p>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">@if(isset($expected_role) && $expected_role === 'admin') Admin Login @elseif(isset($expected_role) && $expected_role === 'agency') Agency Login @else Welcome Back! @endif</h1>
+                <p class="text-gray-500">@if(isset($expected_role) && $expected_role === 'admin') Sign in to access the Admin Dashboard @elseif(isset($expected_role) && $expected_role === 'agency') Sign in to access the Agency Dashboard @else Sign in to continue your Bohol adventure @endif</p>
             </div>
 
             <!-- Success/Error Messages -->
@@ -86,10 +86,11 @@
             @endif
 
             <!-- Login Form -->
-            <form method="POST" action="{{ route('login') }}" 
+        <form method="POST" action="{{ isset($expected_role) && $expected_role === 'admin' ? route('admin.login') : (isset($expected_role) && $expected_role === 'agency' ? route('agency.login') : route('login')) }}" 
                   class="space-y-6" 
                   @submit="isLoading = true">
                 @csrf
+                {{-- expected_role is not sent from the form; server determines role based on the route --}}
                 
                 <!-- Email -->
                 <div class="space-y-2">
@@ -145,34 +146,20 @@
                 </button>
             </form>
 
-            <!-- Social Login Options -->
-            <div class="mt-8">
-                <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-white text-gray-500">Or continue with</span>
-                    </div>
-                </div>
-                
-                <div class="mt-6 grid grid-cols-2 gap-3">
-                    <button type="button" class="w-full inline-flex justify-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
-                        <i class="fab fa-google text-red-500"></i>
-                        <span class="ml-2">Google</span>
-                    </button>
-                    <button type="button" class="w-full inline-flex justify-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
-                        <i class="fab fa-facebook text-blue-600"></i>
-                        <span class="ml-2">Facebook</span>
-                    </button>
-                </div>
-            </div>
+            @php
+                $registerRoute = '/register';
+                if (Str::contains(request()->path(), 'admin/login')) {
+                    $registerRoute = '/admin/register';
+                } elseif (Str::contains(request()->path(), 'agency/login')) {
+                    $registerRoute = '/agency/register';
+                }
+            @endphp
 
             <!-- Sign Up Link -->
-            <p class="text-sm text-gray-600 mt-8 text-center">
-                Don't have an account? 
-                <a href="{{ route('register.form') }}" class="text-blue-600 font-semibold hover:underline transition-colors">Create one</a>
-            </p>
+            <div class="mt-6 text-center">
+                <span class="text-gray-600">Don't have an account?</span>
+                <a href="{{ url($registerRoute) }}" class="text-blue-600 hover:underline font-semibold">Register</a>
+            </div>
         </div>
 
         <!-- Right: Hero Panel -->
@@ -211,7 +198,15 @@
                     </div>
                 </div>
                 
-                <a href="{{ route('register.form') }}" 
+                @php
+                    $registerRoute = '/register';
+                    if (Str::contains(request()->path(), 'admin/login')) {
+                        $registerRoute = '/admin/register';
+                    } elseif (Str::contains(request()->path(), 'agency/login')) {
+                        $registerRoute = '/agency/register';
+                    }
+                @endphp
+                <a href="{{ url($registerRoute) }}" 
                    class="inline-flex items-center px-6 py-3 bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl font-semibold transition-all duration-300 hover:scale-105">
                     <i class="fas fa-user-plus mr-2"></i>
                     New to TravelBuddy?

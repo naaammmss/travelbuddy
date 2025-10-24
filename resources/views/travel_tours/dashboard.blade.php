@@ -1,4 +1,4 @@
-@extends('travel & tours.travel_layout')
+@extends('travel_tours.travel_layout')
 
 @section('title', 'Travel & Tours Dashboard  | TravelBuddy')
 @section('page-title', 'Dashboard')

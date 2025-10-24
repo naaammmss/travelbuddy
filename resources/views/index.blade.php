@@ -71,14 +71,15 @@
                 </div>
             
                 <div class="hidden md:flex items-center space-x-4">
-                        <a href="{{ route('register') }}" 
-                            class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                            Register
-                        </a>
+                    <a href="{{ route('register.form') }}" 
+                        class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                        Register
+                    </a>
 
-                    <button class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-medium hover:bg-blue-50 transition-colors">
+                    <a href="{{ route('login.form') }}"
+                        class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-medium hover:bg-blue-50 transition-colors">
                         Login
-                    </button>
+                    </a>
                 </div>
                 
                 <!-- Mobile Menu Button -->
@@ -286,7 +287,7 @@
                                  <!-- Tarsier Sanctuary -->
                                  <div class="bg-white/95 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden card-hover border border-gray-100 group" x-data="{ isLiked: false }">
                                      <div class="relative h-80 bg-gradient-to-br from-green-100 to-emerald-200 overflow-hidden">
-                                         <img src="/images/shutterstock_418733320-min-scaled.jpg" alt="Tarsier Sanctuary" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                         <img src="/images/tarsier_sanctuary.jpg" alt="Tarsier Sanctuary" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                                          
@@ -369,7 +370,7 @@
                                  <!-- Loboc River -->
                                  <div class="bg-white/95 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden card-hover border border-gray-100 group" x-data="{ isLiked: false }">
                                      <div class="relative h-80 bg-gradient-to-br from-cyan-100 to-blue-200 overflow-hidden">
-                                         <img src="/images/shutterstock_418733320-min-scaled.jpg" alt="Loboc River" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                         <img src="/images/loboc_river.jpg" alt="Loboc River" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                          <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                                          <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1">
@@ -898,10 +899,6 @@
                         <li class="flex items-center space-x-3">
                              <i class="fa-solid fa-location-dot"></i>
                              <span class="text-gray-400">Bohol, Philippines</span>
-                         </li>
-                         <li class="flex items-center space-x-3">
-                             <i class="fa-regular fa-envelope"></i>
-                             <span class="text-gray-400">boholtravelbuddy@gmail.com</span>
                          </li>
                          <li class="flex items-center space-x-3">
                              <i class="fa-solid fa-phone"></i>

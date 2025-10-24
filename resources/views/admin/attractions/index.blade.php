@@ -82,11 +82,11 @@
                 <!-- Image -->
                 <div class="relative h-56 bg-gradient-to-br from-blue-100 to-purple-100 overflow-hidden">
                     <template x-if="attraction.image_path">
-                        <img :src="'/storage/' + attraction.image_path" 
-                            :alt="attraction.name" 
+                        <img :src="'{{ asset('storage') }}/' + attraction.image_path"
+                            :alt="attraction.name"
                             class="w-full h-full object-cover">
                     </template>
-                    <!-- Category Badge -->
+                                        <!-- Category Badge -->
                     <div class="absolute top-4 left-4">
                         <span class="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-semibold text-gray-700"
                               x-text="attraction.category || 'Uncategorized'"></span>

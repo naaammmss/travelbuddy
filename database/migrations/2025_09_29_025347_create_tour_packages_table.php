@@ -13,24 +13,22 @@ return new class extends Migration
     {
         Schema::create('tour_packages', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // package name
+            $table->string('name');
             $table->string('category');
             $table->text('description')->nullable();
             $table->string('duration')->nullable();
-            $table->unsignedInteger('max_participants')->nullable();
-            $table->decimal('price', 10, 2)->nullable();
+            $table->integer('max_participants')->nullable();
+            $table->decimal('price', 10, 2);
             $table->string('location')->nullable();
-            $table->string('image_path')->nullable();
-            $table->text('itinerary')->nullable();
-            $table->text('inclusions')->nullable();
-            $table->text('exclusions')->nullable();
+            $table->longText('itinerary')->nullable();
+            $table->longText('inclusions')->nullable();
+            $table->longText('exclusions')->nullable();
+            $table->string('cover_photo')->nullable();
+            $table->json('gallery')->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('tour_packages');

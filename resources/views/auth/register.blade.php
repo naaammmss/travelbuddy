@@ -41,13 +41,18 @@
         .strength-strong { background-color: #10b981; }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center px-4 py-8" x-data="{ mode:'register', showLogin:false, isLoading: false, passwordStrength: 0, showPassword: false, showConfirmPassword: false }">
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center px-4 py-8" 
+    x-data="{ isLoading: false, passwordStrength: 0, showPassword: false, showConfirmPassword: false }">
 
     <!-- Background Elements -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
         <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 floating-animation"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 floating-animation" style="animation-delay: 2s;"></div>
-        <div class="absolute top-40 left-1/2 w-80 h-80 bg-cyan-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 floating-animation" style="animation-delay: 4s;"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 floating-animation" 
+            style="animation-delay: 2s;">
+        </div>
+        <div class="absolute top-40 left-1/2 w-80 h-80 bg-cyan-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 floating-animation" 
+            style="animation-delay: 4s;">
+        </div>
     </div>
 
     <div class="w-full max-w-6xl bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden grid md:grid-cols-2 min-h-[700px] relative z-10">
@@ -61,58 +66,39 @@
             </div>
             
             <div class="max-w-md text-center space-y-6 relative z-10">
-                
-                <template x-if="mode === 'register'">
-                    <div class="space-y-4">
-                        <h2 class="text-4xl font-bold leading-tight">Join the <span class="text-yellow-300">Adventure</span></h2>
-                        <p class="text-lg text-blue-100 leading-relaxed">Create your account and start exploring Bohol's hidden gems with our comprehensive travel platform.</p>
-                        <div class="space-y-3 text-left">
-                            <div class="flex items-center space-x-3">
-                                <i class="fas fa-check-circle text-green-300"></i>
-                                <span class="text-blue-100">Personalized itineraries</span>
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <i class="fas fa-check-circle text-green-300"></i>
-                                <span class="text-blue-100">Interactive maps & guides</span>
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <i class="fas fa-check-circle text-green-300"></i>
-                                <span class="text-blue-100">24/7 local support</span>
-                            </div>
+                <div class="space-y-4">
+                    <h2 class="text-4xl font-bold leading-tight">Join the 
+                        <span class="text-yellow-300">Adventure</span>
+                    </h2>
+                    <p class="text-lg text-blue-100 leading-relaxed">
+                        Create your account and start exploring Bohol's hidden gems with our comprehensive travel platform.
+                    </p>
+                    <div class="space-y-3 text-left">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check-circle text-green-300"></i>
+                            <span class="text-blue-100">
+                                Personalized itineraries
+                            </span>
                         </div>
-                        <button type="button" @click="mode='login'" 
-                                class="inline-flex items-center px-6 py-3 bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl font-semibold transition-all duration-300 hover:scale-105">
-                            <i class="fas fa-sign-in-alt mr-2"></i>
-                            Already have an account?
-                        </button>
-                    </div>
-                </template>
-                
-                <template x-if="mode === 'login'">
-                    <div class="space-y-4">
-                        <h2 class="text-4xl font-bold leading-tight">Welcome <span class="text-yellow-300">Back!</span></h2>
-                        <p class="text-lg text-blue-100 leading-relaxed">Sign in to continue your Bohol adventure and access your saved itineraries.</p>
-                        <div class="space-y-3 text-left">
-                            <div class="flex items-center space-x-3">
-                                <i class="fas fa-star text-yellow-300"></i>
-                                <span class="text-blue-100">Access your saved trips</span>
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <i class="fas fa-map-marked-alt text-yellow-300"></i>
-                                <span class="text-blue-100">Continue exploring</span>
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <i class="fas fa-heart text-yellow-300"></i>
-                                <span class="text-blue-100">Your favorite spots</span>
-                            </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check-circle text-green-300"></i>
+                            <span class="text-blue-100">
+                                Interactive maps & guides
+                            </span>
                         </div>
-                        <button type="button" @click="mode='register'" 
-                                class="inline-flex items-center px-6 py-3 bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl font-semibold transition-all duration-300 hover:scale-105">
-                            <i class="fas fa-user-plus mr-2"></i>
-                            New to TravelBuddy?
-                        </button>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check-circle text-green-300"></i>
+                            <span class="text-blue-100">
+                                24/7 local support
+                            </span>
+                        </div>
                     </div>
-                </template>
+                    <a href="{{ route('login.form') }}" 
+                       class="inline-flex items-center px-6 py-3 bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl font-semibold transition-all duration-300 hover:scale-105">
+                        <i class="fas fa-sign-in-alt mr-2"></i>
+                        Already have an account?
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -123,8 +109,8 @@
                 <div class="w-16 h-16 flex items-center justify-center mx-auto mb-4">
                     <img src="{{ asset('images/logo.png') }}" alt="TravelBuddy Logo" class="h-16 w-auto">
                 </div>
-                <h1 class="text-3xl font-bold text-gray-800 mb-2" x-text="mode==='register' ? 'Create Your Account' : 'Welcome Back!'"></h1>
-                <p class="text-gray-500" x-text="mode==='register' ? 'Join thousands of travelers exploring Bohol' : 'Sign in to continue your journey'"></p>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Create Your Account</h1>
+                <p class="text-gray-500">Join thousands of travelers exploring Bohol</p>
             </div>
 
             <!-- Error Messages -->
@@ -145,14 +131,7 @@
             @endif
 
             <!-- Register Form -->
-            <form x-show="mode==='register'" 
-                  x-transition:enter="transition ease-out duration-300"
-                  x-transition:enter-start="opacity-0 transform translate-x-4"
-                  x-transition:enter-end="opacity-100 transform translate-x-0"
-                  x-transition:leave="transition ease-in duration-200"
-                  x-transition:leave-start="opacity-100 transform translate-x-0"
-                  x-transition:leave-end="opacity-0 transform translate-x-4"
-                  action="{{ route('register') }}" method="POST" 
+            <form action="{{ route('register') }}" method="POST" 
                   class="space-y-6" 
                   @submit="isLoading = true"
                   x-data="{
@@ -272,73 +251,6 @@
                 </button>
             </form>
 
-            <!-- Login Form -->
-            <form x-show="mode==='login'" 
-                  x-transition:enter="transition ease-out duration-300"
-                  x-transition:enter-start="opacity-0 transform translate-x-4"
-                  x-transition:enter-end="opacity-100 transform translate-x-0"
-                  x-transition:leave="transition ease-in duration-200"
-                  x-transition:leave-start="opacity-100 transform translate-x-0"
-                  x-transition:leave-end="opacity-0 transform translate-x-4"
-                  method="POST" action="{{ route('login') }}" 
-                  class="space-y-6" 
-                  @submit="isLoading = true"
-                  x-data="{ showPassword: false }">
-                @csrf
-                
-                <!-- Email -->
-                <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-gray-700">
-                        <i class="fas fa-envelope mr-2 text-blue-500"></i>Email Address
-                    </label>
-                    <input type="email" name="email" value="{{ old('email') }}" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent form-focus transition-all duration-300" 
-                           placeholder="Enter your email address"
-                           required>
-                </div>
-                
-                <!-- Password -->
-                <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-gray-700">
-                        <i class="fas fa-lock mr-2 text-blue-500"></i>Password
-                    </label>
-                    <div class="relative">
-                        <input :type="showPassword ? 'text' : 'password'" 
-                               name="password" 
-                               class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent form-focus transition-all duration-300" 
-                               placeholder="Enter your password"
-                               required>
-                        <button type="button" 
-                                @click="showPassword = !showPassword"
-                                class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors">
-                            <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Remember Me & Forgot Password -->
-                <div class="flex items-center justify-between">
-                    <label class="inline-flex items-center text-sm text-gray-600">
-                        <input type="checkbox" name="remember" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-2">
-                        Remember me
-                    </label>
-                    <a href="#" class="text-sm text-blue-600 hover:underline font-semibold">Forgot password?</a>
-                </div>
-                
-                <!-- Submit Button -->
-                <button type="submit" 
-                        :disabled="isLoading"
-                        class="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
-                    <span x-show="!isLoading" class="flex items-center justify-center">
-                        <i class="fas fa-sign-in-alt mr-2"></i>
-                        Sign In
-                    </span>
-                    <span x-show="isLoading" class="flex items-center justify-center">
-                        <i class="fas fa-spinner fa-spin mr-2"></i>
-                        Signing In...
-                    </span>
-                </button>
-            </form>
         </div>
     </div>
 

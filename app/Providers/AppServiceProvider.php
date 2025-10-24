@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Routing\Router;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Register route middleware alias for role checks
+        if (class_exists(Router::class)) {
+            $router = $this->app->make(Router::class);
+            $router->aliasMiddleware('role', \App\Http\Middleware\RoleMiddleware::class);
+        }
     }
 }

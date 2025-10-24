@@ -19,6 +19,7 @@ class Attraction extends Model
         'entry_fee',
         'special_notes',
         'image_path',
+        'map_embed_url',    
     ];
 }
 

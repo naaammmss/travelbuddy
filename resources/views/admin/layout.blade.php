@@ -84,24 +84,59 @@
                         <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                     </button>
                     <!-- Profile -->
-                    <div x-data="{ open: false }" class="relative inline-block text-left">
-                        <button @click="open = !open" class="relative p-2 rounded-lg hover:bg-gray-100">
-                            <i class="fa-solid fa-user"></i>
-                        </button>
-                        <div x-show="open" @click.away="open = false" x-transition
-                            class="absolute right-0 mt-2 w-40 bg-white text-gray-800 rounded-lg shadow-lg z-50 py-2">
-                            <a class="block px-4 py-2"></a>
-                            <form method="POST" action="">
-                                @csrf
-                                <button type="submit" class="w-full text-left px-4 py-2 hover:bg-gray-100">
-                                    <i class="fa-regular fa-user mr-2"></i> View Profile 
-                                </button>
-                                <button type="submit" class="w-full text-left px-4 py-2 hover:bg-gray-100">
-                                    <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Logout
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+                 @php
+    $user = auth()->user();
+@endphp
+
+@if ($user)
+<div x-data="{ open: false }" class="relative inline-block text-left">
+    <button @click="open = !open" class="relative flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100">
+        <!-- initials (first + last char of name) -->
+        @php
+            $fullName = trim($user->name ?? '');
+            // get first char
+            $first = $fullName ? strtoupper(mb_substr($fullName, 0, 1)) : '';
+            // get last name's first char (if exists)
+            $lastInitial = '';
+            if ($fullName && strpos($fullName, ' ') !== false) {
+                $parts = preg_split('/\s+/', $fullName);
+                $last = end($parts);
+                $lastInitial = $last ? strtoupper(mb_substr($last, 0, 1)) : '';
+            }
+            $initials = $first . $lastInitial;
+        @endphp
+
+        @if (!empty($user->profile_picture))
+            <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="Profile" class="w-8 h-8 rounded-full object-cover">
+        @else
+            <div class="w-8 h-8 flex items-center justify-center bg-gray-300 text-gray-700 font-semibold rounded-full">
+                {{ $initials ?: 'U' }}
+            </div>
+        @endif
+
+        <span class="font-medium text-gray-800">{{ $user->name }}</span>
+    </button>
+
+    <div x-show="open" @click.away="open = false" x-transition
+         class="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-lg z-50 py-2">
+        <a href="" class="block px-4 py-2 hover:bg-gray-100 flex items-center">
+            <i class="fa-regular fa-user mr-2"></i> View Profile
+        </a>
+
+        <form method="POST" action="{{ route('admin.logout') }}">
+            @csrf
+            <button type="submit" class="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center">
+                <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Logout
+            </button>
+        </form>
+    </div>
+</div>
+@else
+    <!-- Not logged in: show sign-in link -->
+    <a href="{{ route('login.form') }}" class="px-3 py-2 rounded hover:bg-gray-100">Sign in</a>
+@endif
+
+
                 </div>
             </header>
 

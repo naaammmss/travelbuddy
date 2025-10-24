@@ -1,13 +1,12 @@
-@extends('travel & tours.travel_layout')
+@extends('travel_tours.travel_layout')
 
 @section('title', 'Travel & Tours Dashboard  | TravelBuddy')
 @section('page-title', 'Packages')
 
 @section('content')
 
-    <div class="bg-gray-50 text-gray-900" x-data="tourPackages()">
-
-                
+    <div class="bg-gray-50 text-gray-900">
+         
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- Header -->
             <div class="flex justify-between items-center mb-8">
@@ -16,7 +15,7 @@
                     <p class="text-gray-600">Manage your tour packages, attractions, and pricing.</p>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <a href="{{ route('admin.attractions.create') }}" 
+                    <a href="{{ route('travel_tours.tour_packages.create_packages') }}"
                     class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
                         <i class="fas fa-plus mr-2"></i>
                         Add New Package
@@ -35,6 +34,7 @@
                     </div>
                 </div>
             @endif
+            
             <!-- Search and Filter -->
             <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -75,96 +75,49 @@
                 </div>
             </div>
 
-            <!-- Tour Packages Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <template x-for="package in filteredPackages" :key="package.id">
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover">
-                    <!-- Package Image -->
-                    <div class="relative h-48 bg-gradient-to-br from-blue-100 to-purple-100">
-                        <img :src="package.image" :alt="package.name" class="w-full h-full object-cover">
-                        <div class="absolute top-4 right-4">
-                            <span class="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-semibold"
-                                  :class="package.status === 'active' ? 'text-green-600' : package.status === 'inactive' ? 'text-red-600' : 'text-yellow-600'"
-                                  x-text="package.status.charAt(0).toUpperCase() + package.status.slice(1)"></span>
-                        </div>
-                        <div class="absolute top-4 left-4">
-                            <span class="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-semibold text-gray-700"
-                                  x-text="package.category"></span>
-                        </div>
-                    </div>
-
-                    <!-- Package Content -->
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold text-gray-900 mb-2" x-text="package.name"></h3>
-                        <p class="text-gray-600 text-sm mb-4 line-clamp-2" x-text="package.description"></p>
-                        
-                        <!-- Package Details -->
-                        <div class="space-y-2 mb-4">
-                            <div class="flex items-center text-sm text-gray-500">
-                                <i class="fas fa-clock mr-2"></i>
-                                <span x-text="package.duration"></span>
-                            </div>
-                            <div class="flex items-center text-sm text-gray-500">
-                                <i class="fas fa-users mr-2"></i>
-                                <span x-text="package.max_participants + ' max participants'"></span>
-                            </div>
-                            <div class="flex items-center text-sm text-gray-500">
-                                <i class="fas fa-map-marker-alt mr-2"></i>
-                                <span x-text="package.location"></span>
-                            </div>
-                        </div>
-
-                        <!-- Price -->
-                        <div class="flex items-center justify-between mb-4">
-                            <div>
-                                <span class="text-2xl font-bold text-blue-600" x-text="'₱' + package.price.toLocaleString()"></span>
-                                <span class="text-sm text-gray-500">per person</span>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="flex text-yellow-400">
-                                    <template x-for="i in 5" :key="i">
-                                        <i class="fas fa-star text-xs"></i>
-                                    </template>
+            <!-- Tour Packages Grid (Blade-rendered) -->
+            <div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @foreach($packages as $package)
+                        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover">
+                            <div class="relative h-48 bg-gradient-to-br from-blue-100 to-purple-100">
+                                <img src="{{ asset('storage/' . $package->cover_photo) }}" alt="{{ $package->name }}" class="w-full h-full object-cover">
+                                <div class="absolute top-4 left-4">
+                                    <span class="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-semibold text-gray-700">{{ $package->category }}</span>
                                 </div>
-                                <span class="text-sm text-gray-500 ml-1" x-text="package.rating"></span>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">{{ $package->name }}</h3>
+                                <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ $package->description }}</p>
+                                <div class="space-y-2 mb-4">
+                                    <div class="flex items-center text-sm text-gray-500"><i class="fas fa-clock mr-2"></i><span>{{ $package->duration }}</span></div>
+                                    <div class="flex items-center text-sm text-gray-500"><i class="fas fa-users mr-2"></i><span>{{ $package->max_participants }} max participants</span></div>
+                                    <div class="flex items-center text-sm text-gray-500"><i class="fas fa-map-marker-alt mr-2"></i><span>{{ $package->location }}</span></div>
+                                </div>
+                                <div class="flex items-center justify-between mb-4"><div><span class="text-2xl font-bold text-blue-600">₱{{ number_format($package->price, 2) }}</span><span class="text-sm text-gray-500"> per person</span></div></div>
+                                <div class="flex space-x-2">
+                                    <a href="{{ route('travel_tours.tour_packages.edit', $package->id) }}" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm"><i class="fas fa-edit mr-1"></i>Edit</a>
+                                    <a href="{{ route('travel_tours.tour_packages.show', $package->id) }}" class="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors text-sm"><i class="fas fa-eye mr-1"></i>View</a>
+                                    <form action="{{ route('travel_tours.tour_packages.destroy', $package->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this package?');">@csrf @method('DELETE')<button type="submit" class="bg-red-100 text-red-600 py-2 px-4 rounded-lg hover:bg-red-200 transition-colors text-sm"><i class="fas fa-trash"></i></button></form>
+                                </div>
                             </div>
                         </div>
-
-                        <!-- Actions -->
-                        <div class="flex space-x-2">
-                            <button @click="editPackage(package)" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm">
-                                <i class="fas fa-edit mr-1"></i>
-                                Edit
-                            </button>
-                            <button @click="viewPackage(package)" class="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors text-sm">
-                                <i class="fas fa-eye mr-1"></i>
-                                View
-                            </button>
-                            <button @click="deletePackage(package.id)" class="bg-red-100 text-red-600 py-2 px-4 rounded-lg hover:bg-red-200 transition-colors text-sm">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
-            </template>
-        </div>
 
-        <!-- Empty State -->
-        <div x-show="filteredPackages.length === 0" class="text-center py-12">
-            <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-map-marked-alt text-3xl text-gray-400"></i>
+                @if($packages->isEmpty())
+                    <div class="text-center py-12">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">No packages found</h3>
+                        <p class="text-gray-600 mb-6">Start by adding your first tour package.</p>
+                        <a href="{{ route('travel_tours.tour_packages.create_packages') }}" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors"><i class="fas fa-plus mr-2"></i> Add Your First Package</a>
+                    </div>
+                @endif
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">No packages found</h3>
-            <p class="text-gray-600 mb-6">Start by adding your first tour package.</p>
-            <button @click="showAddModal = true" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
-                <i class="fas fa-plus mr-2"></i>
-                Add Your First Package
-            </button>
-        </div>
-    </div>
+
      <script>
-        function tourPackages() {
+        function tourPackages(packages = []) {
             return {
+                packages: packages || [],
                 searchQuery: '',
                 selectedCategory: '',
                 selectedStatus: '',
@@ -186,60 +139,11 @@
                     exclusions: '',
                     status: 'active'
                 },
-                packages: [
-                    {
-                        id: 1,
-                        name: 'Bohol Island Hopping Adventure',
-                        category: 'Adventure',
-                        description: 'Experience the best of Bohol with our comprehensive island hopping tour including dolphin watching, snorkeling, and beach hopping.',
-                        duration: '1 day',
-                        max_participants: 15,
-                        price: 2500,
-                        location: 'Panglao Island, Bohol',
-                        image: '/images/AndaBeach.jpg',
-                        itinerary: 'Day 1: Dolphin watching, Balicasag Island snorkeling, Virgin Island beach',
-                        inclusions: '• Boat transfer\n• Snorkeling gear\n• Lunch\n• Guide services',
-                        exclusions: '• Personal expenses\n• Optional activities',
-                        status: 'active',
-                        rating: 4.9
-                    },
-                    {
-                        id: 2,
-                        name: 'Chocolate Hills & Tarsier Tour',
-                        category: 'Nature',
-                        description: 'Visit the iconic Chocolate Hills and meet the world\'s smallest primates in their natural habitat.',
-                        duration: 'Half day',
-                        max_participants: 20,
-                        price: 1800,
-                        location: 'Carmen & Corella, Bohol',
-                        image: '/images/Chocolate-Hills.jpg',
-                        itinerary: 'Morning: Tarsier Sanctuary visit\nAfternoon: Chocolate Hills viewing',
-                        inclusions: '• Transportation\n• Entrance fees\n• Guide services',
-                        exclusions: '• Meals\n• Personal expenses',
-                        status: 'active',
-                        rating: 4.8
-                    },
-                    {
-                        id: 3,
-                        name: 'Cultural Heritage Tour',
-                        category: 'Cultural',
-                        description: 'Explore Bohol\'s rich cultural heritage through historic churches, museums, and traditional villages.',
-                        duration: '1 day',
-                        max_participants: 12,
-                        price: 2200,
-                        location: 'Baclayon, Loboc, Bohol',
-                        image: '/images/baclayon_church.png',
-                        itinerary: 'Morning: Baclayon Church, Blood Compact Monument\nAfternoon: Loboc River cruise, Cultural show',
-                        inclusions: '• Transportation\n• Entrance fees\n• River cruise\n• Cultural show\n• Lunch',
-                        exclusions: '• Personal expenses\n• Souvenirs',
-                        status: 'active',
-                        rating: 4.7
-                    }
-                ],
+                
                 filteredPackages: [],
                 
                 init() {
-                    this.filteredPackages = [...this.packages];
+                    this.filteredPackages = Array.isArray(this.packages) ? [...this.packages] : [];
                     this.handleResize();
                 },
                 

@@ -16,9 +16,22 @@ class TourPackages extends Model
         'max_participants',
         'price',
         'location',
-        'image_path',
+        'cover_photo', 
         'itinerary',
         'inclusions',
         'exclusions',
+        'gallery',
     ];
+
+    protected $casts = [
+        'gallery' => 'array',
+    ];
+
+    /**
+     * We store the cover image in `cover_photo` - expose it as `image_path`.
+     */
+    public function getImagePathAttribute()
+    {
+        return $this->attributes['cover_photo'] ?? null;
+    }
 }

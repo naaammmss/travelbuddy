@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TravelBuddy</title>
+    <link rel="stylesheet" href="{{ asset('fontawesome/css/all.css') }}">
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+</head>
+
+<body class="bg-gray-50 text-gray-900 font-inter" 
+      x-data="{ sidebarOpen: false }" 
+      x-init="sidebarOpen = window.innerWidth >= 1024">
+
+    <div class="min-h-screen flex ">
+        <!-- Sidebar -->
+        <aside class="fixed inset-y-0 left-0 z-40 w-72 bg-white shadow-lg border-r border-gray-200 transform transition-transform duration-200 ease-in-out lg:translate-x-0 "
+               :class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }"
+               x-on:keyup.escape.window="sidebarOpen = false" >
+            
+            <!-- Branding -->
+            <div class="h-20 flex items-center px-6 border-b border-gray-200">
+                <img src="{{ asset('images/logo.png') }}" alt="TravelBuddy Logo" class="h-16 w-auto">
+                <div class="ml-3">
+                    <div class="text-lg font-extrabold tracking-tight">TravelBuddy</div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="p-4 space-y-1">
+                <a href="{{ route('customer.customer_dashboard') }}" class="flex items-center px-3 py-2 rounded-lg text-m font-medium hover:bg-blue-100 hover:text-blue-700 transition {{ request()->routeIs('customer.customer_dashboard') ? 'bg-blue-50 text-blue-700' : 'text-gray-600' }}">
+                    <i class="fa-solid fa-house w-5 mr-3"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 rounded-lg text-m font-medium hover:bg-blue-100 hover:text-blue-700 transition {{ request()->routeIs('customer.trips') ? 'bg-blue-50 text-blue-700' : 'text-gray-600' }}">
+                    <i class="fa-solid fa-suitcase-rolling w-5 mr-3"></i>
+                    <span>My Trips</span>
+                </a>
+                
+                <a href="{{ route('customer.book_trip_package.trip_package') }}" class="flex items-center px-3 py-2 rounded-lg text-m font-medium hover:bg-blue-100 hover:text-blue-700 transition {{ request()->routeIs('customer.book') ? 'bg-blue-50 text-blue-700' : 'text-gray-600' }}">
+                    <i class="fa-solid fa-plane-departure w-5 mr-3"></i>
+                    <span>Tour Packages</span>  
+                </a>
+                <div class= "border-t border-gray-100"></div>
+                <a href="#" class="flex items-center px-3 py-2 rounded-lg text-m font-medium hover:bg-blue-100 hover:text-blue-700 transition {{ request()->routeIs('customer.profile') ? 'bg-blue-50 text-blue-700' : 'text-gray-600' }}">
+                    <i class="fa-regular fa-user w-5 mr-3"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 rounded-lg text-m font-medium text-gray-600 hover:bg-blue-100 hover:text-blue-700 transition">
+                    <i class="fa-solid fa-gear w-5 mr-3"></i>
+                    <span>Settings</span>
+                </a>
+                <form id="logout-sidebar" method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="w-full text-left flex items-center px-3 py-2 rounded-lg text-m font-medium text-gray-600 hover:bg-blue-100 hover:text-blue-700 transition">
+                        <i class="fa-solid fa-right-from-bracket w-5 mr-3"></i>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </nav>
+        </aside>
+    
+
+        <!-- Content Wrapper -->
+        <div class="flex-1 flex flex-col lg:ml-72" :class="{ 'ml-0': !sidebarOpen, 'ml-72': sidebarOpen }">
+            
+            <!-- Top Bar -->
+            <header class="h-20 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-30 shadow-sm">
+                <div class="flex items-center">
+                    <button class="lg:hidden mr-3 p-2 rounded-lg border border-gray-200 hover:bg-gray-100" 
+                            @click="sidebarOpen = !sidebarOpen">
+                        <i class="fa-solid fa-bars text-gray-600"></i>
+                    </button>
+                    <h1 class="text-xl font-bold text-gray-800">@yield('page-title', 'Dashboard')</h1>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <!-- Search -->
+                    <div class="relative hidden md:block">
+                        <input type="text" placeholder="Search..." 
+                               class="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                    <!-- Notifications -->
+                    <button class="relative p-2 rounded-lg hover:bg-gray-100">
+                        <i class="fa-solid fa-bell text-gray-600"></i>
+                        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+
+                    <!-- Profile -->
+                    <div x-data="{ open: false }" class="relative inline-block text-left">
+                        <!-- Profile Button -->
+                        <button @click="open = !open" class="relative flex items-center justify-center w-10 h-10 rounded-full hover:ring-2 hover:ring-gray-300 focus:outline-none">
+                            @php
+                                $user = Auth::user();
+                                $profile = $user?->customerProfile;
+                            @endphp
+
+                            @if ($profile && $profile->profile_picture)
+                                <img src="{{ asset('storage/' . $profile->profile_picture) }}" 
+                                    alt="Profile Picture"
+                                    class="w-10 h-10 rounded-full object-cover">
+                            @else
+                                <img src="{{ asset('images/default-profile.png') }}" 
+                                    alt="Default Profile Picture"
+                                    class="w-10 h-10 rounded-full object-cover">
+                            @endif
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div x-show="open" @click.away="open = false" x-transition
+                            class="absolute right-0 mt-2 w-56 bg-white text-gray-800 rounded-lg shadow-lg z-50 py-2">
+
+                            <!-- User Info -->
+                            <div class="px-4 py-3 border-b border-gray-100">
+                                <p class="text-sm font-semibold text-gray-900">
+                                    {{ $user?->name ?? 'Guest' }}
+                                </p>
+                                <p class="text-xs text-gray-500 truncate">
+                                    {{ $user?->email ?? '' }}
+                                </p>
+                            </div>
+
+                            <!-- Profile Link -->
+                            <a href="{{ route('customer.customer_profile.profile') }}" 
+                                class="block px-4 py-2 text-sm hover:bg-gray-100">
+                                <i class="fa-regular fa-user mr-2"></i> View Profile
+                            </a>
+
+                            <!-- Logout -->
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
+                                    <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Main Content -->
+             <main class="flex-1 p-6 bg-gradient-to-b from-white to-blue-50/30">
+                @yield('content')
+            </main>
+
+            <footer class="px-6 py-4 text-sm text-gray-500 border-t border-gray-200 text-center bg-white">
+                © {{ date('Y') }} TravelBuddy. All rights reserved.
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Keep sidebar open when resizing
+        window.addEventListener('resize', () => {
+            const alpine = document.querySelector('body').__x;
+            if (!alpine) return;
+            alpine.$data.sidebarOpen = window.innerWidth >= 1024 ? true : alpine.$data.sidebarOpen;
+        });
+    </script>
+</body>
+</html>

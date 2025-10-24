@@ -24,7 +24,9 @@
             </div>
         </div>
         
-        <form action="{{ route('admin.attractions.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8" x-data="attractionForm()">
+        <form action="{{ route('admin.attractions.store') }}" 
+            method="POST" enctype="multipart/form-data" 
+            class="space-y-8" x-data="attractionForm()">
             @csrf
 
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
@@ -106,15 +108,24 @@
                             </h3>
                         </div>
                         <div class="p-6 space-y-6">
-                           <div>
+                            <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                                     Address/Location Name
                                 </label>
-                                <input type="text" 
-                                       name="address" 
-                                       value="{{ old('address') }}" 
-                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                       placeholder="e.g., Carmen, Bohol, Philippines">
+                                <input 
+                                    type="text" 
+                                    name="address" 
+                                    id="address"
+                                    value="{{ old('address') }}" 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    placeholder="e.g., Carmen, Bohol, Philippines">
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="map_embed_url" class="block text-sm font-medium text-gray-700">Google Map Embed Code</label>
+                                <textarea name="map_embed_url" id="map_embed_url" rows="3"
+                                    class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="Paste the full iframe code here">{{ old('map_embed_url', $attraction->map_embed_url ?? '') }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -250,7 +261,8 @@
                     <!-- Action Buttons -->
                     <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
                         <div class="p-6 space-y-4">
-                            <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-3 px-6 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105">
+                            <button type="submit" 
+                                class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-3 px-6 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105">
                                 Create Attraction
                             </button>
                             <a href="{{ route('admin.attractions.index') }}" class="w-full bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors text-center block">
@@ -264,44 +276,43 @@
     </div>
 
     <script>
-        function attractionForm() {
-            return {
-                imagePreview: null,
-                
-                handleImageUpload(event) {
-                    const file = event.target.files[0];
-                    if (file) {
-                        // Validate file size (4MB)
-                        if (file.size > 4 * 1024 * 1024) {
-                            alert('File size must be less than 4MB');
-                            event.target.value = '';
-                            return;
-                        }
-                        
-                        // file type
-                        if (!file.type.startsWith('image/')) {
-                            alert('Please select an image file');
-                            event.target.value = '';
-                            return;
-                        }
-                        
-                        // Create preview
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            this.imagePreview = e.target.result;
-                        };
-                        reader.readAsDataURL(file);
+    function attractionForm() {
+        return {
+            imagePreview: null,
+
+            handleImageUpload(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    // Validate file size (4MB)
+                    if (file.size > 4 * 1024 * 1024) {
+                        alert('File size must be less than 4MB');
+                        event.target.value = '';
+                        return;
                     }
-                },
-                
-                removeImage() {
-                    this.imagePreview = null;
-                    document.getElementById('image-upload').value = '';
-                    document.getElementById('image-upload-change').value = '';
+
+                    // Validate file type
+                    if (!file.type.startsWith('image/')) {
+                        alert('Please select an image file');
+                        event.target.value = '';
+                        return;
+                    }
+
+                    // Create preview
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.imagePreview = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
                 }
+            },
+
+            removeImage() {
+                this.imagePreview = null;
+                document.getElementById('image-upload').value = '';
+                document.getElementById('image-upload-change').value = '';
             }
         }
-    </script>
+    }
+</script>
+
 @endsection
-
-
