@@ -30,11 +30,12 @@ class AdminAuthController extends Controller
             'role' => 'admin', 
         ]); 
         
-        Auth::login($admin); 
-        // regenerate session to avoid session fixation
-        request()->session()->regenerate();
+    // Log in the new admin using the admin guard
+    Auth::guard('admin')->login($admin);
+    // regenerate session to avoid session fixation
+    request()->session()->regenerate();
 
-        return redirect()->route('admin.login')->with('success', 'Admin registered successfully!'); 
+    return redirect()->route('admin.dashboard')->with('success', 'Admin registered successfully!'); 
     }
     
     /** * Show admin login page */ 
@@ -50,17 +51,17 @@ class AdminAuthController extends Controller
             'password' => ['required', 'string'], 
         ]); 
 
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+        // Attempt to authenticate using the admin guard directly
+        if (Auth::guard('admin')->attempt($credentials)) {
+            // Regenerate session to avoid fixation
             $request->session()->regenerate();
-            $user = Auth::user();
 
-            if ($user->role === 'admin') {
-                return redirect()->route('admin.dashboard')->with('success', 'Welcome Admin!');
-            } else {
-                Auth::logout(); 
-                return redirect()->route('admin.login')->withErrors(['email' => 'Access denied. Not an admin.']);
-            }
+            // Redirect to admin dashboard
+            return redirect()->route('admin.dashboard')->with('success', 'Welcome Admin!');
         }
+
+        return back()->withErrors(['email' => 'Invalid credentials.'])
+            ->withInput();
         // if (Auth::attempt($credentials)) {
         //     $user = Auth::user(); 
         //         if ($user->role === 'admin') {

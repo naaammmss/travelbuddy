@@ -7,15 +7,25 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\TravelToursController;
 use App\Http\Controllers\BookingController;
 
-require __DIR__ . '/test.php';
 
 Route::get('/', function () {
     return view('index');
 });
 
+// Email Verification Routes
+use App\Http\Controllers\VerificationController;
+
+Route::controller(VerificationController::class)->group(function () {
+    Route::get('/email/verify', 'show')->name('verification.notice');
+    Route::post('/email/verify', 'verify')->name('verification.verify');
+    Route::post('/email/verify/resend', 'sendCode')->name('verification.send');
+});
+
 // Register
-Route::get('/register', [AuthController::class, 'showRegister'])->name('register.form');
-Route::post('/register', [AuthController::class, 'register'])->name('register');
+Route::middleware(['web'])->group(function () {
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register.form');
+    Route::post('/register', [AuthController::class, 'register'])->name('register');
+});
 
 // Customer Login Route
 Route::get('/customer/login', [AuthController::class, 'showLogin'])->name('login.form');
@@ -34,16 +44,12 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::post('/travel_tours/login', [AuthController::class, 'loginTravelAgency'])
         ->name('agency_login');
 
-    //Admin Register
-    // Route::get('/admin/register', [AuthController::class, 'showAdminRegister'])
-    //     ->name('admin_register.form');
-    // Route::post('/admin/register', [AuthController::class, 'registerAdmin'])
-    //     ->name('admin_register');
-
-    //Admin Register
+    //Admin Register (protected: only admins can create new admin accounts)
     Route::get('/admin/register', [AdminAuthController::class, 'showRegisterForm'])
+        ->middleware(['auth:admin', 'role:admin'])
         ->name('admin.register');
     Route::post('/admin/register', [AdminAuthController::class, 'register'])
+        ->middleware(['auth:admin', 'role:admin'])
         ->name('admin_register');
 
     //Admin Login
@@ -58,7 +64,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     
     // Admin routes
-    Route::prefix('admin')->as('admin.')->middleware('role:admin')->group(function () {
+    Route::prefix('admin')->as('admin.')
+    ->middleware(['auth:admin', 'role:admin'])
+    ->group(function () {
 
         Route::get('/dashboard', [\App\Http\Controllers\AdminController::class, 'dashboard'])
             ->name('dashboard');
@@ -73,7 +81,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     });
 
 // Travel & Tours routes
-Route::prefix('travel_tours')->name('travel_tours.')->middleware('role:travel_agency')->group(function () {
+Route::prefix('travel_tours')->as('travel_tours.')
+    ->middleware('auth:travel_agency')
+    ->group(function () {
     Route::get('/dashboard', [TravelToursController::class, 'dashboard'])->name('dashboard');
     Route::get('/agency-profile', [TravelToursController::class, 'agencyProfile'])->name('agency_prof.agency_profile');
     // tour packages
@@ -94,7 +104,9 @@ Route::prefix('travel_tours')->name('travel_tours.')->middleware('role:travel_ag
 
 
 // CUSTOMER ROUTES
-Route::prefix('customer')->name('customer.')->middleware(['role:customer'])->group(function () {
+Route::prefix('customer')->as('customer.')
+    ->middleware('auth:web')
+    ->group(function () {
     Route::get('/dashboard', [CustomerController::class, 'customerDashboard'])->name('customer_dashboard');
 
     Route::get('/book_trip_package', [\App\Http\Controllers\CustomerController::class, 'customerPackages'])
@@ -112,4 +124,3 @@ Route::prefix('customer')->name('customer.')->middleware(['role:customer'])->gro
     Route::post('/profile', [\App\Http\Controllers\CustomerController::class, 'updateProfile'])
         ->name('customer_profile.update');
 });
-

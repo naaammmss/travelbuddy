@@ -15,7 +15,17 @@ class EnsureRole
      */
     public function handle(Request $request, Closure $next, $role = null)
     {
+        // Try to find the authenticated user across common guards
         $user = Auth::user();
+        if (! $user) {
+            $guardsToCheck = ['admin', 'travel_agency', 'web', 'customer'];
+            foreach ($guardsToCheck as $g) {
+                if (Auth::guard($g)->check()) {
+                    $user = Auth::guard($g)->user();
+                    break;
+                }
+            }
+        }
 
         if (! $user) {
             return redirect()->route('login.form');

@@ -7,6 +7,7 @@ use App\Models\CustomerProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -14,6 +15,12 @@ class AuthController extends Controller
     public function showRegister()
     {
         return view('auth.register');
+    }
+
+    public function __construct()
+    {
+        $this->middleware('web');
+        $this->middleware('verified')->except(['register', 'login', 'showRegister', 'showLogin']);
     }
 
     // Handle Registration
@@ -31,6 +38,7 @@ class AuthController extends Controller
                 'regex:/[0-9]/',     // must contain number
                 'regex:/[@$!%*#?&]/' // must contain special char
             ],
+            'contact_number' => 'required|string|max:20',
         ], [
             'password.regex' => 'Password must contain uppercase, lowercase, number, and special character.',
         ]);
@@ -50,17 +58,28 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $role,
+            'contact_number' => $request->contact_number,
+            'email_verified_at' => null,
         ]);
 
-        // Create associated customer profile
-        CustomerProfile::create([
-            'user_id' => $user->id,
-            'address' => null,
-            'phone' => null,
-            'birthdate' => null,
-        ]);
+        // Only create customer profile for customer role
+        if ($role === 'customer') {
+            CustomerProfile::create([
+                'user_id' => $user->id,
+                'address' => null,
+                'phone' => $request->contact_number,
+                'birthdate' => null,
+            ]);
+        }
 
-        return redirect()->route('login.form')->with('success', 'Registration successful!');
+        // Login the user
+        Auth::login($user);
+
+        // Generate and send verification code
+        app(VerificationController::class)->sendCode($request);
+
+        return redirect()->route('verification.notice')
+            ->with('success', 'Registration successful! Please check your email for the verification code.');
 
     }
 
@@ -89,18 +108,29 @@ class AuthController extends Controller
             $expectedRole = 'customer';
         }
 
-        if (Auth::attempt($credentials, $request->remember)) {
+        if (Auth::guard('web')->attempt($credentials, $request->remember)) {
             $request->session()->regenerate();
+            $user = Auth::guard('web')->user();
 
-            // Redirect to role-specific dashboard
-            $user = Auth::user();
-
-            // If expected role is set on the form but the user doesn't match, logout and show error
-            if ($expectedRole && $user->role !== $expectedRole) {
-                Auth::logout();
-                return back()->withErrors(['email' => 'No account with that role found for these credentials.'])->onlyInput('email');
+            // Check if this is a customer login attempt
+            if ($expectedRole === 'customer' && $user->role !== 'customer') {
+                Auth::guard('web')->logout();
+                return back()->withErrors(['email' => 'Invalid credentials for customer login.']);
             }
-            return redirect()->intended($this->getDashboardUrl($user))->with('success', 'Welcome back!');
+
+            // Check email verification
+            if (!$user->hasVerifiedEmail()) {
+                // Resend verification code
+                app(VerificationController::class)->sendCode($request);
+                return redirect()->route('verification.notice')
+                    ->with('warning', 'Please verify your email address first.');
+            }
+
+            // Redirect based on role
+            if ($user->role === 'customer') {
+                return redirect()->route('customer.customer_dashboard')
+                    ->with('success', 'Welcome back!');
+            }
         }
 
         return back()->withErrors([
@@ -144,7 +174,7 @@ public function showTravelAgencyRegister()
 public function registerTravelAgency(Request $request)
 {
     $request->validate([
-        'name' => 'required|string|max:255',
+        'agency_name' => 'required|string|max:255',
         'email' => 'required|email|unique:users,email',
         'password' => [
             'required',
@@ -157,11 +187,13 @@ public function registerTravelAgency(Request $request)
         ],
     ]);
 
+    // Map the agency_name input to the users.name column
     $user = User::create([
-        'name' => $request->name,
+        'name' => $request->agency_name,
         'email' => $request->email,
         'password' => Hash::make($request->password),
         'role' => 'travel_agency',
+        'contact_number' => $request->contact_number ?? null,
     ]);
 
     return redirect()->route('agency_login.form')
@@ -182,23 +214,38 @@ public function loginTravelAgency(Request $request)
         'password' => ['required'],
     ]);
 
-    if (Auth::attempt($credentials, $request->remember)) {
-        $request->session()->regenerate();
+    if (Auth::guard('travel_agency')->attempt($credentials, $request->remember)) {
+    $request->session()->regenerate();
+    $user = Auth::guard('travel_agency')->user();
 
-        $user = Auth::user();
-
-        if ($user->role !== 'travel_agency') {
-            Auth::logout();
-            return redirect()->route('login.form')
-                ->with('error', 'Access denied! You are not a Travel Agency.');
-        }
-
-        return redirect()->route('travel_tours.dashboard')
-            ->with('success', 'Welcome back, Travel Partner!');
+    if ($user->role !== 'travel_agency') {
+        Auth::guard('travel_agency')->logout();
+        return redirect()->route('login.form')->with('error', 'Access denied!');
+    }
+    // ensure other guards (customer/web or admin) are logged out to avoid mixed sessions
+    try {
+        Auth::guard('web')->logout();
+    } catch (\Exception $e) {
+        // ignore if guard not active
+    }
+    try {
+        Auth::guard('admin')->logout();
+    } catch (\Exception $e) {
+        // ignore if guard not active
     }
 
+    return redirect()->route('travel_tours.dashboard')->with('success', 'Welcome back!');
+}
+
+    // Log guard states to help diagnose login failures
+    Log::debug('Travel agency login failed', [
+        'travel_agency' => Auth::guard('travel_agency')->check(),
+        'admin' => Auth::guard('admin')->check(),
+        'web' => Auth::guard('web')->check(),
+    ]);
+
     return back()->withErrors([
-        'email' => 'The provided credentials do not match our records.',
+        'email' => 'The provided credentials do not match our records. (debug guards: agency=' . (Auth::guard('travel_agency')->check() ? '1' : '0') . ', admin=' . (Auth::guard('admin')->check() ? '1' : '0') . ', web=' . (Auth::guard('web')->check() ? '1' : '0') . ')',
     ])->onlyInput('email');
 }
 
@@ -221,15 +268,20 @@ public function loginTravelAgency(Request $request)
       /**
      * ✅ Logout user and destroy session
      */
-    public function logout(Request $request)
+public function logout(Request $request)
 {
-    Auth::logout();
+    if (Auth::guard('admin')->check()) {
+        Auth::guard('admin')->logout();
+    } elseif (Auth::guard('travel_agency')->check()) {
+        Auth::guard('travel_agency')->logout();
+    } else {
+        Auth::guard('web')->logout();
+    }
+
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    // Redirect based on user role
-    return redirect('/customer/login')->with('success', 'You have been logged out successfully.');
+    return redirect('/')->with('success', 'You have been logged out successfully.');
 }
-
 
 }

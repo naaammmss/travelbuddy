@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Register | TravelBuddy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
@@ -133,7 +134,7 @@
             <!-- Register Form -->
             <form action="{{ route('register') }}" method="POST" 
                   class="space-y-6" 
-                  @submit="isLoading = true"
+                  @submit.prevent="isLoading = true; $event.target.submit()"
                   x-data="{
                       checkPasswordStrength(password) {
                           let strength = 0;
@@ -166,6 +167,17 @@
                     <input type="email" name="email" id="email" value="{{ old('email') }}"
                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent form-focus transition-all duration-300" 
                            placeholder="Enter your email address"
+                           required>
+                </div>
+
+                <!-- Contact Number -->
+                <div class="space-y-2">
+                    <label for="contact_number" class="block text-sm font-semibold text-gray-700">
+                        <i class="fas fa-phone mr-2 text-blue-500"></i>Contact Number
+                    </label>
+                    <input type="text" name="contact_number" id="contact_number" value="{{ old('contact_number') }}"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent form-focus transition-all duration-300" 
+                           placeholder="Enter your contact number"
                            required>
                 </div>
 

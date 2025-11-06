@@ -98,9 +98,27 @@
                             @php
                                 $user = Auth::user();
                                 $profile = $user?->customerProfile;
+                                $fullName = trim($user->name ?? '');
+                                    // get first char
+                                $first = $fullName ? strtoupper(mb_substr($fullName, 0, 1)) : '';
+                                    // get last name's first char (if exists)
+                                $lastInitial = '';
+                                if ($fullName && strpos($fullName, ' ') !== false) {
+                                    $parts = preg_split('/\s+/', $fullName);
+                                    $last = end($parts);
+                                    $lastInitial = $last ? strtoupper(mb_substr($last, 0, 1)) : '';
+                                }
+                                $initials = $first . $lastInitial;
                             @endphp
+                            @if (!empty($user->profile_picture))
+                                <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="Profile" class="w-8 h-8 rounded-full object-cover">
+                            @else
+                                <div class="w-8 h-8 flex items-center justify-center bg-gray-300 text-gray-700 font-semibold rounded-full">
+                                    {{ $initials ?: 'U' }}
+                                </div>
+                            @endif
 
-                            @if ($profile && $profile->profile_picture)
+                            <!-- @if ($profile && $profile->profile_picture)
                                 <img src="{{ asset('storage/' . $profile->profile_picture) }}" 
                                     alt="Profile Picture"
                                     class="w-10 h-10 rounded-full object-cover">
@@ -108,7 +126,7 @@
                                 <img src="{{ asset('images/default-profile.png') }}" 
                                     alt="Default Profile Picture"
                                     class="w-10 h-10 rounded-full object-cover">
-                            @endif
+                            @endif -->
                         </button>
 
                         <!-- Dropdown Menu -->
